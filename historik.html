@@ -125,6 +125,7 @@
         // Vis gennemsnitligt stressniveau for de seneste 7 dage
         document.addEventListener('DOMContentLoaded', async function() {
             const { data: { user } } = await _supabase.auth.getUser();
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             if (!user) {
                 window.location.href = 'index.html';
                 return;
