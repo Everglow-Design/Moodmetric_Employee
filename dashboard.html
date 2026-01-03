@@ -5,6 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
+                .status-section {
+                    margin-bottom: 24px;
+                }
+                .status-indicator {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    background: #b0b8c9;
+                    margin-left: 8px;
+                    vertical-align: middle;
+                }
+                .checkin-section {
+                    margin-bottom: 24px;
+                }
+                .checkin-form label {
+                    display: block;
+                    margin: 12px 0 6px 0;
+                    color: #2a3a5e;
+                    text-align: left;
+                }
+                .checkin-form input[type="range"] {
+                    width: 100%;
+                }
+                .checkin-form .emoji-group {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 8px 0 16px 0;
+                }
+                .checkin-form .emoji {
+                    font-size: 1.6em;
+                    cursor: pointer;
+                    transition: transform 0.1s;
+                }
+                .checkin-form .emoji.selected {
+                    transform: scale(1.2);
+                    border-bottom: 2px solid #2a3a5e;
+                }
+                .checkin-form textarea {
+                    width: 100%;
+                    min-height: 40px;
+                    border-radius: 6px;
+                    border: 1px solid #cfd8dc;
+                    padding: 8px;
+                    font-size: 1em;
+                    resize: none;
+                }
+                .checkin-form button {
+                    width: 100%;
+                    padding: 12px;
+                    background: #2a3a5e;
+                    color: #fff;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 1.1em;
+                    cursor: pointer;
+                    margin-top: 16px;
+                }
+                .confirmation-section {
+                    display: none;
+                    margin-bottom: 24px;
+                    color: #2a3a5e;
+                    background: #eaf7f0;
+                    border-radius: 10px;
+                    padding: 18px 10px;
+                }
+                .insight-section {
+                    margin-bottom: 18px;
+                    color: #4a5a7e;
+                    font-size: 1em;
+                }
+                .ai-feedback-section {
+                    margin-bottom: 18px;
+                    color: #6a7a9e;
+                    font-size: 0.98em;
+                    font-style: italic;
+                }
+                .nav-section {
+                    display: flex;
+                    justify-content: space-around;
+                    margin-top: 18px;
+                    border-top: 1px solid #e0e4ef;
+                    padding-top: 12px;
+                    font-size: 1.2em;
+                }
+                .nav-section a {
+                    color: #2a3a5e;
+                    text-decoration: none;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .nav-section a:active {
+                    color: #4a5a7e;
+                }
         body {
             min-height: 100vh;
             margin: 0;
@@ -45,8 +140,99 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <h1>Velkommen til dit Dashboard!</h1>
-        <p>Du er nu logget ind som medarbejder.</p>
+        <!-- 1️⃣ Status / Overblik -->
+        <div class="status-section">
+            <div style="font-weight: bold;">Hvordan har du det i dag?</div>
+            <div style="margin-top: 4px; color: #6a7a9e; font-size: 0.98em;">
+                <span id="current-date"></span>
+                <span class="status-indicator" title="Neutral status"></span>
+            </div>
+        </div>
+
+        <!-- 2️⃣ Daglig check-in -->
+        <div class="checkin-section" id="checkin-section">
+            <form class="checkin-form" id="checkin-form">
+                <label for="stress">Stressniveau</label>
+                <input type="range" id="stress" name="stress" min="1" max="10" value="5">
+                <div style="font-size:0.95em; color:#6a7a9e; margin-bottom:8px;">Lav (1) &nbsp;–&nbsp; Høj (10)</div>
+
+                <label>Humør</label>
+                <div class="emoji-group" id="mood-group">
+                    <span class="emoji" data-value="glad" title="Glad">😊</span>
+                    <span class="emoji" data-value="neutral" title="Neutral">😐</span>
+                    <span class="emoji" data-value="trist" title="Trist">😔</span>
+                    <span class="emoji" data-value="træt" title="Træt">😴</span>
+                </div>
+
+                <label for="comment">Valgfri kommentar</label>
+                <textarea id="comment" name="comment" maxlength="120" placeholder="Skriv evt. en kort kommentar..."></textarea>
+
+                <button type="submit">Send check-in</button>
+            </form>
+        </div>
+
+        <!-- 3️⃣ Bekræftelse efter check-in -->
+        <div class="confirmation-section" id="confirmation-section">
+            <div style="font-size:1.1em;">Tak – din check-in er registreret</div>
+        </div>
+
+        <!-- 4️⃣ Kort personlig indsigt (MVP) -->
+        <div class="insight-section" id="insight-section" style="display:none;">
+            Du har checket ind 4 dage i træk
+        </div>
+
+        <!-- 5️⃣ AI-feedback (forsigtig) -->
+        <div class="ai-feedback-section" id="ai-feedback-section" style="display:none;">
+            Husk at tage pauser, hvis du føler dig presset
+        </div>
+
+        <!-- 6️⃣ Navigation -->
+        <div class="nav-section">
+            <a href="#" title="Dashboard">
+                🏠<span style="font-size:0.8em;">Dashboard</span>
+            </a>
+            <a href="#" title="Min historik">
+                📊<span style="font-size:0.8em;">Min historik</span>
+            </a>
+            <a href="#" title="Indstillinger / Log ud">
+                ⚙️<span style="font-size:0.8em;">Indstillinger</span>
+            </a>
+        </div>
+    <script>
+        // Sæt dags dato
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('da-DK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Emoji humørvalg
+        const moodGroup = document.getElementById('mood-group');
+        let selectedMood = null;
+        moodGroup.addEventListener('click', function(e) {
+            if (e.target.classList.contains('emoji')) {
+                Array.from(moodGroup.children).forEach(el => el.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedMood = e.target.getAttribute('data-value');
+            }
+        });
+
+        // Check-in form
+        const checkinForm = document.getElementById('checkin-form');
+        const checkinSection = document.getElementById('checkin-section');
+        const confirmationSection = document.getElementById('confirmation-section');
+        const insightSection = document.getElementById('insight-section');
+        const aiFeedbackSection = document.getElementById('ai-feedback-section');
+
+        checkinForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Her kan du indsætte kode til at gemme check-in i database
+            checkinSection.style.display = 'none';
+            confirmationSection.style.display = 'block';
+            // Vis evt. indsigt og AI-feedback (dummy i MVP)
+            setTimeout(() => {
+                confirmationSection.style.display = 'none';
+                insightSection.style.display = 'block';
+                aiFeedbackSection.style.display = 'block';
+            }, 1800);
+        });
+    </script>
     </div>
 </body>
 </html>
