@@ -61,6 +61,7 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const SUPABASE_URL = 'https://rwksvrxfsjfdikckwmzq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3a3N2cnhmc2pmZGlrY2t3bXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczOTY5MTksImV4cCI6MjA4Mjk3MjkxOX0.rddfbx0API_R62uLWJdM5QCMmqIwc-9b6XpgfNsbsOk';
@@ -96,6 +97,7 @@
 <body>
     <div class="history-container">
         <h1>Min historik</h1>
+        <canvas id="stressChart" width="400" height="160" style="margin-bottom:18px;"></canvas>
         <div class="history-list" id="history-list"></div>
         <div class="nav-section">
             <a href="dashboard.html" title="Dashboard">
@@ -122,10 +124,9 @@
             }
         });
 
-        // Vis gennemsnitligt stressniveau for de seneste 7 dage
+        // Vis stressniveau som kurve for de seneste 7 dage
         document.addEventListener('DOMContentLoaded', async function() {
             const { data: { user } } = await _supabase.auth.getUser();
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             if (!user) {
                 window.location.href = 'index.html';
                 return;
@@ -136,23 +137,54 @@
                 .select('*')
                 .eq('user_id', user.id)
                 .order('dato', { ascending: false });
-            // Udregn stressniveau for de seneste 7 dage
-            const stressSummary = document.getElementById('stress-summary');
-            if (data && data.length > 0) {
-                const now = new Date();
-                const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-                const last7days = data.filter(item => {
-                    const d = new Date(item.dato);
-                    return d >= sevenDaysAgo && d <= now;
+            // Forbered data til kurve for de seneste 7 dage
+            const now = new Date();
+            const last7days = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6 + i);
+                const dStr = d.toISOString().slice(0, 10);
+                // Find check-in for denne dag
+                const found = data.find(item => item.dato && item.dato.slice(0, 10) === dStr);
+                last7days.push({
+                    date: dStr,
+                    value: found ? found.stressniveau : null
                 });
-                if (last7days.length > 0) {
-                    const avg = last7days.reduce((sum, item) => sum + (item.stressniveau || 0), 0) / last7days.length;
-                    stressSummary.textContent = `Dit gennemsnitlige stressniveau de seneste 7 dage: ${avg.toFixed(1)}`;
-                } else {
-                    stressSummary.textContent = "Ingen check-ins de seneste 7 dage.";
+            }
+            // Tegn kurve med Chart.js
+            const ctx = document.getElementById('stressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7days.map(d => d.date.split('-').reverse().join('-')),
+                    datasets: [{
+                        label: 'Stressniveau',
+                        data: last7days.map(d => d.value),
+                        borderColor: '#2a3a5e',
+                        backgroundColor: 'rgba(42,58,94,0.08)',
+                        spanGaps: true,
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#2a3a5e',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 10,
+                            title: { display: true, text: 'Stressniveau' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
                 }
-                // Vis alle check-ins
-                const list = document.getElementById('history-list');
+            });
+            // Vis alle check-ins
+            const list = document.getElementById('history-list');
+            if (data && data.length > 0) {
                 data.forEach(item => {
                     const el = document.createElement('div');
                     el.className = 'history-item';
@@ -163,8 +195,7 @@
                     list.appendChild(el);
                 });
             } else {
-                document.getElementById('history-list').innerHTML = '<div style="color:#6a7a9e;">Ingen check-ins fundet.</div>';
-                stressSummary.textContent = "Ingen check-ins de seneste 7 dage.";
+                list.innerHTML = '<div style="color:#6a7a9e;">Ingen check-ins fundet.</div>';
             }
         });
     </script>
