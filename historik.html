@@ -121,6 +121,51 @@
                 });
             }
         });
+
+        // Vis gennemsnitligt stressniveau for de seneste 7 dage
+        document.addEventListener('DOMContentLoaded', async function() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            // Hent alle check-ins for brugeren
+            const { data, error } = await _supabase
+                .from('CHECKINS_EMPLOYEE')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('dato', { ascending: false });
+            // Udregn stressniveau for de seneste 7 dage
+            const stressSummary = document.getElementById('stress-summary');
+            if (data && data.length > 0) {
+                const now = new Date();
+                const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+                const last7days = data.filter(item => {
+                    const d = new Date(item.dato);
+                    return d >= sevenDaysAgo && d <= now;
+                });
+                if (last7days.length > 0) {
+                    const avg = last7days.reduce((sum, item) => sum + (item.stressniveau || 0), 0) / last7days.length;
+                    stressSummary.textContent = `Dit gennemsnitlige stressniveau de seneste 7 dage: ${avg.toFixed(1)}`;
+                } else {
+                    stressSummary.textContent = "Ingen check-ins de seneste 7 dage.";
+                }
+                // Vis alle check-ins
+                const list = document.getElementById('history-list');
+                data.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'history-item';
+                    el.innerHTML = `<strong>Dato:</strong> ${new Date(item.dato).toLocaleDateString('da-DK')}<br>
+                        <strong>Stressniveau:</strong> ${item.stressniveau}<br>
+                        <strong>Humør:</strong> ${item.emotion || ''}<br>
+                        <strong>Kommentar:</strong> ${item.comment || ''}`;
+                    list.appendChild(el);
+                });
+            } else {
+                document.getElementById('history-list').innerHTML = '<div style="color:#6a7a9e;">Ingen check-ins fundet.</div>';
+                stressSummary.textContent = "Ingen check-ins de seneste 7 dage.";
+            }
+        });
     </script>
 </body>
 </html>
