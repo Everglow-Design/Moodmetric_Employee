@@ -276,10 +276,10 @@
                 await _supabase.from('CHECKINS_EMPLOYEE').insert([
                     {
                         user_id: user.id,
-                        dato: new Date().toISOString().slice(0,10),
+                        dato: new Date().toISOString(),
                         stressniveau: parseInt(stress),
-                        humør: selectedMood,
-                        kommentar: comment
+                        emotion: selectedMood,
+                        comment: comment
                     }
                 ]);
                 checkinSection.style.display = 'none';
