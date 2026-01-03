@@ -30,13 +30,20 @@ async function fetchUserData(userId) {
     let { data, error } = await _supabase
         .from('Profiles_Employee')
         .select('*')
-        .eq('id', userId)
-        .single();
+        .eq('id', userId);
+    console.log('Data fra Profiles_Employee:', data, error);
     if (error) {
         alert('Kunne ikke hente data: ' + error.message);
         return;
     }
-    alert('Dine data: ' + JSON.stringify(data));
+    if (!data || data.length === 0) {
+        alert('Ingen data fundet for denne bruger.');
+        return;
+    }
+    if (data.length > 1) {
+        alert('Advarsel: Flere rækker fundet for denne bruger!');
+    }
+    alert('Dine data: ' + JSON.stringify(data[0]));
 }
 
 document.addEventListener('DOMContentLoaded', function() {
