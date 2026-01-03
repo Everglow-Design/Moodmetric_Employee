@@ -11,41 +11,25 @@ async function login(event) {
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-    console.log('Login respons:', data, error);
     if (error) {
-        alert('Login fejlede: ' + error.message);
+        // Login fejlede, stop uden besked
         return;
     }
     if (!data || typeof data !== 'object' || !('user' in data) || !data.user) {
-        alert('Login mislykkedes: Bruger ikke fundet. Respons: ' + JSON.stringify(data));
+        // Bruger ikke fundet, stop uden besked
         return;
     }
-    alert('Login succesful!');
     // Redirect til dashboard
     window.location.href = 'dashboard.html';
-    // Hvis du stadig vil hente brugerdata, kan du gøre det på dashboard-siden
-    // fetchUserData(data.user.id);
 }
 
 async function fetchUserData(userId) {
     // Eksempel: Hent data fra "Profiles_Employee" tabel hvor id = userId
-            let { data, error } = await _supabase
-                .from('PROFILES_EMPLOYEE')
-                .select('*')
-                .eq('id', userId);
-    console.log('Data fra PROFILES_EMPLOYEE:', data, error);
-    if (error) {
-        alert('Kunne ikke hente data: ' + error.message);
-        return;
-    }
-    if (!data || data.length === 0) {
-        alert('Ingen data fundet for denne bruger.');
-        return;
-    }
-    if (data.length > 1) {
-        alert('Advarsel: Flere rækker fundet for denne bruger!');
-    }
-    alert('Dine data: ' + JSON.stringify(data[0]));
+    let { data, error } = await _supabase
+        .from('PROFILES_EMPLOYEE')
+        .select('*')
+        .eq('id', userId);
+    // Ingen beskeder eller logs
 }
 
 document.addEventListener('DOMContentLoaded', function() {
