@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+        <script>
+            const SUPABASE_URL = 'https://rwksvrxfsjfdikckwmzq.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3a3N2cnhmc2pmZGlrY2t3bXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczOTY5MTksImV4cCI6MjA4Mjk3MjkxOX0.rddfbx0API_R62uLWJdM5QCMmqIwc-9b6XpgfNsbsOk';
+            const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
@@ -199,6 +205,31 @@
             </a>
         </div>
     <script>
+                // Hent brugerdata for den aktuelle bruger
+                async function loadUserData() {
+                    const { data: { user } } = await _supabase.auth.getUser();
+                    if (!user) {
+                        // Hvis ikke logget ind, send tilbage til login
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    // Hent evt. profiloplysninger fra din employee-tabel
+                    const { data, error } = await _supabase
+                        .from('PROFILES_EMPLOYEE')
+                        .select('*')
+                        .eq('id', user.id)
+                        .single();
+                    if (data && data.navn) {
+                        // Sæt navn/status i status-sektionen hvis ønsket
+                        const statusSection = document.querySelector('.status-section');
+                        const nameDiv = document.createElement('div');
+                        nameDiv.style.fontSize = '1em';
+                        nameDiv.style.color = '#2a3a5e';
+                        nameDiv.textContent = 'Hej, ' + data.navn;
+                        statusSection.appendChild(nameDiv);
+                    }
+                }
+                loadUserData();
         // Sæt dags dato
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('da-DK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
