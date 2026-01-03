@@ -247,16 +247,19 @@
         // Sæt dags dato
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('da-DK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Emoji humørvalg
+        // Emoji humørvalg (klik og touch)
         const moodGroup = document.getElementById('mood-group');
         let selectedMood = null;
-        moodGroup.addEventListener('click', function(e) {
-            if (e.target.classList.contains('emoji')) {
+        function selectMood(e) {
+            let target = e.target;
+            if (target.classList.contains('emoji')) {
                 Array.from(moodGroup.children).forEach(el => el.classList.remove('selected'));
-                e.target.classList.add('selected');
-                selectedMood = e.target.getAttribute('data-value');
+                target.classList.add('selected');
+                selectedMood = target.getAttribute('data-value');
             }
-        });
+        }
+        moodGroup.addEventListener('click', selectMood);
+        moodGroup.addEventListener('touchstart', selectMood);
 
         // Check-in form
         const checkinForm = document.getElementById('checkin-form');
@@ -267,6 +270,10 @@
 
         checkinForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            if (!selectedMood) {
+                alert('Vælg et humør-ikon før du sender!');
+                return;
+            }
             (async () => {
                 const stress = document.getElementById('stress').value;
                 const comment = document.getElementById('comment').value;
@@ -277,7 +284,7 @@
                     return;
                 }
                 // Gem check-in i Supabase
-                await _supabase.from('CHECKINS_EMPLOYEE').insert([
+                const { error } = await _supabase.from('CHECKINS_EMPLOYEE').insert([
                     {
                         user_id: user.id,
                         dato: new Date().toISOString(),
@@ -286,6 +293,10 @@
                         comment: comment
                     }
                 ]);
+                if (error) {
+                    alert('Der opstod en fejl ved indsendelse: ' + error.message);
+                    return;
+                }
                 checkinSection.style.display = 'none';
                 confirmationSection.style.display = 'block';
                 // Vis evt. indsigt og AI-feedback (dummy i MVP)
