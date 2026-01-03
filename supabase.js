@@ -16,8 +16,8 @@ async function login(event) {
         alert('Login fejlede: ' + error.message);
         return;
     }
-    if (!data || !data.user) {
-        alert('Login mislykkedes: Bruger ikke fundet.');
+    if (!data || typeof data !== 'object' || !('user' in data) || !data.user) {
+        alert('Login mislykkedes: Bruger ikke fundet. Respons: ' + JSON.stringify(data));
         return;
     }
     alert('Login succesfuld!');
