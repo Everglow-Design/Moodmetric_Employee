@@ -253,15 +253,34 @@
 
         checkinForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Her kan du indsætte kode til at gemme check-in i database
-            checkinSection.style.display = 'none';
-            confirmationSection.style.display = 'block';
-            // Vis evt. indsigt og AI-feedback (dummy i MVP)
-            setTimeout(() => {
-                confirmationSection.style.display = 'none';
-                insightSection.style.display = 'block';
-                aiFeedbackSection.style.display = 'block';
-            }, 1800);
+            (async () => {
+                const stress = document.getElementById('stress').value;
+                const comment = document.getElementById('comment').value;
+                // Hent bruger
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                // Gem check-in i Supabase
+                await _supabase.from('CHECKINS_EMPLOYEE').insert([
+                    {
+                        user_id: user.id,
+                        dato: new Date().toISOString().slice(0,10),
+                        stressniveau: parseInt(stress),
+                        humør: selectedMood,
+                        kommentar: comment
+                    }
+                ]);
+                checkinSection.style.display = 'none';
+                confirmationSection.style.display = 'block';
+                // Vis evt. indsigt og AI-feedback (dummy i MVP)
+                setTimeout(() => {
+                    confirmationSection.style.display = 'none';
+                    insightSection.style.display = 'block';
+                    aiFeedbackSection.style.display = 'block';
+                }, 1800);
+            })();
         });
     </script>
     </div>
