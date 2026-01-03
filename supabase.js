@@ -28,7 +28,7 @@ async function login(event) {
 async function fetchUserData(userId) {
     // Eksempel: Hent data fra "Profiles_Employee" tabel hvor id = userId
             let { data, error } = await _supabase
-                .from('public."PROFILES_EMPLOYEE"')
+                .from('"PROFILES_EMPLOYEE"')
                 .select('*')
                 .eq('id', userId);
     console.log('Data fra PROFILES_EMPLOYEE:', data, error);
