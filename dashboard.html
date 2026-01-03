@@ -207,18 +207,17 @@
             </a>
         </div>
         <script>
-            // Log ud funktionalitet
-            document.addEventListener('DOMContentLoaded', function() {
-                const logoutLink = document.getElementById('logout-link');
-                if (logoutLink) {
-                    logoutLink.addEventListener('click', async function(e) {
-                        e.preventDefault();
-                        await _supabase.auth.signOut();
-                        window.location.href = 'index.html';
-                    });
-                }
-            });
-    <script>
+        // Log ud funktionalitet
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            }
+        });
                 // Hent brugerdata for den aktuelle bruger
                 async function loadUserData() {
                     const { data: { user } } = await _supabase.auth.getUser();
