@@ -267,6 +267,41 @@
         const insightSection = document.getElementById('insight-section');
         const aiFeedbackSection = document.getElementById('ai-feedback-section');
 
+        // Funktion til at generere mild AI-feedback baseret på seneste check-ins
+        async function updateAIFeedback() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+            const { data, error } = await _supabase
+                .from('CHECKINS_EMPLOYEE')
+                .select('stressniveau, emotion, dato')
+                .eq('user_id', user.id)
+                .order('dato', { ascending: false })
+                .limit(5);
+            let feedback = "Husk at tage pauser, hvis du føler dig presset";
+            if (data && data.length > 0) {
+                const stressValues = data.map(d => d.stressniveau);
+                const moodValues = data.map(d => d.emotion);
+                const lastStress = stressValues[0];
+                const lastMood = moodValues[0];
+                if (stressValues.every(v => v <= 4)) {
+                    feedback = "Dit stressniveau har været lavt på det seneste.";
+                } else if (stressValues.every(v => v >= 8)) {
+                    feedback = "Vær opmærksom på dit stressniveau – husk at tage pauser.";
+                } else if (moodValues.every(m => m === lastMood)) {
+                    feedback = "Dit humør har været stabilt de sidste dage.";
+                } else if (lastMood === "træt") {
+                    feedback = "Husk at få nok søvn og pauser.";
+                } else if (lastMood === "glad") {
+                    feedback = "Dejligt at du har det godt!";
+                }
+            }
+            aiFeedbackSection.textContent = feedback;
+            aiFeedbackSection.style.display = 'block';
+        }
+
+        // Opdater AI-feedback ved indlæsning og efter check-in
+        document.addEventListener('DOMContentLoaded', updateAIFeedback);
+
         checkinForm.addEventListener('submit', function(e) {
             e.preventDefault();
             if (!selectedMood) {
@@ -298,7 +333,8 @@
                 }
                 checkinSection.style.display = 'none';
                 confirmationSection.style.display = 'block';
-                // Vis evt. indsigt og AI-feedback (dummy i MVP)
+                // Opdater AI-feedback efter check-in
+                updateAIFeedback();
                 setTimeout(() => {
                     confirmationSection.style.display = 'none';
                     insightSection.style.display = 'block';
