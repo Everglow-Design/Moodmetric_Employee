@@ -10,14 +10,19 @@ async function login(event) {
     event.preventDefault();
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const { error, user, session } = await _supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    console.log('Login respons:', data, error);
     if (error) {
         alert('Login fejlede: ' + error.message);
         return;
     }
+    if (!data || !data.user) {
+        alert('Login mislykkedes: Bruger ikke fundet.');
+        return;
+    }
     alert('Login succesfuld!');
     // Hent brugerens data
-    fetchUserData(user.id);
+    fetchUserData(data.user.id);
 }
 
 async function fetchUserData(userId) {
