@@ -192,16 +192,28 @@
 
         <!-- 6️⃣ Navigation -->
         <div class="nav-section">
-            <a href="#" title="Dashboard">
+            <a href="dashboard.html" title="Dashboard">
                 🏠<span style="font-size:0.8em;">Dashboard</span>
             </a>
-            <a href="#" title="Min historik">
+            <a href="historik.html" title="Min historik">
                 📊<span style="font-size:0.8em;">Min historik</span>
             </a>
-            <a href="#" title="Indstillinger / Log ud">
-                ⚙️<span style="font-size:0.8em;">Indstillinger</span>
+            <a href="#" id="logout-link" title="Log ud">
+                🚪<span style="font-size:0.8em;">Log ud</span>
             </a>
         </div>
+        <script>
+            // Log ud funktionalitet
+            document.addEventListener('DOMContentLoaded', function() {
+                const logoutLink = document.getElementById('logout-link');
+                if (logoutLink) {
+                    logoutLink.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        await _supabase.auth.signOut();
+                        window.location.href = 'index.html';
+                    });
+                }
+            });
     <script>
                 // Hent brugerdata for den aktuelle bruger
                 async function loadUserData() {

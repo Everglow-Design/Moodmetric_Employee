@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min historik</title>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+        }
+        .history-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+            padding: 40px 32px;
+            max-width: 480px;
+            width: 95vw;
+            text-align: center;
+        }
+        h1 {
+            color: #2a3a5e;
+            margin-bottom: 18px;
+            font-size: 2em;
+        }
+        .history-list {
+            margin-top: 24px;
+            text-align: left;
+        }
+        .history-item {
+            background: #f4f6fb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            color: #2a3a5e;
+        }
+        .nav-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 18px;
+            border-top: 1px solid #e0e4ef;
+            padding-top: 12px;
+            font-size: 1.2em;
+        }
+        .nav-section a {
+            color: #2a3a5e;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-section a:active {
+            color: #4a5a7e;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        const SUPABASE_URL = 'https://rwksvrxfsjfdikckwmzq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3a3N2cnhmc2pmZGlrY2t3bXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczOTY5MTksImV4cCI6MjA4Mjk3MjkxOX0.rddfbx0API_R62uLWJdM5QCMmqIwc-9b6XpgfNsbsOk';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        document.addEventListener('DOMContentLoaded', async function() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const { data, error } = await _supabase
+                .from('CHECKINS_EMPLOYEE')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('dato', { ascending: false });
+            const list = document.getElementById('history-list');
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'history-item';
+                    el.innerHTML = `<strong>Dato:</strong> ${new Date(item.dato).toLocaleDateString('da-DK')}<br>
+                        <strong>Stressniveau:</strong> ${item.stressniveau}<br>
+                        <strong>Humør:</strong> ${item.emotion || ''}<br>
+                        <strong>Kommentar:</strong> ${item.comment || ''}`;
+                    list.appendChild(el);
+                });
+            } else {
+                list.innerHTML = '<div style="color:#6a7a9e;">Ingen check-ins fundet.</div>';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="history-container">
+        <h1>Min historik</h1>
+        <div class="history-list" id="history-list"></div>
+        <div class="nav-section">
+            <a href="dashboard.html" title="Dashboard">
+                🏠<span style="font-size:0.8em;">Dashboard</span>
+            </a>
+            <a href="historik.html" title="Min historik">
+                📊<span style="font-size:0.8em;">Min historik</span>
+            </a>
+            <a href="#" id="logout-link" title="Log ud">
+                🚪<span style="font-size:0.8em;">Log ud</span>
+            </a>
+        </div>
+    </div>
+    <script>
+        // Log ud funktionalitet
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
