@@ -4,9 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+        }
+        .dashboard-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 90vw;
+            text-align: center;
+        }
+        h1 {
+            color: #2a3a5e;
+            margin-bottom: 18px;
+            font-size: 2em;
+        }
+        p {
+            color: #4a5a7e;
+            font-size: 1.1em;
+        }
+        @media (max-width: 600px) {
+            .dashboard-container {
+                padding: 24px 8vw;
+                max-width: 98vw;
+            }
+            h1 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Velkommen til dit Dashboard!</h1>
-    <p>Du er nu logget ind som medarbejder.</p>
+    <div class="dashboard-container">
+        <h1>Velkommen til dit Dashboard!</h1>
+        <p>Du er nu logget ind som medarbejder.</p>
+    </div>
 </body>
 </html>
