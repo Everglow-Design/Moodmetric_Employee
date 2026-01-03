@@ -27,11 +27,11 @@ async function login(event) {
 
 async function fetchUserData(userId) {
     // Eksempel: Hent data fra "Profiles_Employee" tabel hvor id = userId
-    let { data, error } = await _supabase
-        .from('main.profiles_employee')
-        .select('*')
-        .eq('id', userId);
-    console.log('Data fra Profiles_Employee:', data, error);
+        let { data, error } = await _supabase
+            .from('main."PROFILES_EMPLOYEE"')
+            .select('*')
+            .eq('id', userId);
+    console.log('Data fra PROFILES_EMPLOYEE:', data, error);
     if (error) {
         alert('Kunne ikke hente data: ' + error.message);
         return;
