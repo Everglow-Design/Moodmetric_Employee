@@ -20,9 +20,11 @@ async function login(event) {
         alert('Login mislykkedes: Bruger ikke fundet. Respons: ' + JSON.stringify(data));
         return;
     }
-    alert('Login succesfuld!');
-    // Hent brugerens data
-    fetchUserData(data.user.id);
+    alert('Login succesful!');
+    // Redirect til dashboard
+    window.location.href = 'dashboard.html';
+    // Hvis du stadig vil hente brugerdata, kan du gøre det på dashboard-siden
+    // fetchUserData(data.user.id);
 }
 
 async function fetchUserData(userId) {
